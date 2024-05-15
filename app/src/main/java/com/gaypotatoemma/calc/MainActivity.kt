@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import net.objecthunter.exp4j.ExpressionBuilder
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,6 +44,10 @@ class MainActivity : ComponentActivity() {
                 dynamicLightColorScheme(context)
             }
 
+            // Set Status Bar Icon Color
+            val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+            windowInsetsController.isAppearanceLightStatusBars = !isSystemInDarkTheme
+
             MaterialTheme(colorScheme = colorScheme) {
                 Surface(
                     modifier = Modifier.background(MaterialTheme.colorScheme.background)
@@ -53,6 +58,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
 
 // Function to check the system's dark mode setting
 @Composable
