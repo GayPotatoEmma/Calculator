@@ -20,14 +20,13 @@ import net.objecthunter.exp4j.ExpressionBuilder
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import java.text.DecimalFormat
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Make status bar and navigation bar transparent
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        // Set status bar color to transparent
         window.setFlags(
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
@@ -37,14 +36,12 @@ class MainActivity : ComponentActivity() {
             val context = LocalContext.current
             val isSystemInDarkTheme = isSystemInDarkTheme()
 
-            // Dynamically apply the appropriate color scheme
             val colorScheme = if (isSystemInDarkTheme) {
                 dynamicDarkColorScheme(context)
             } else {
                 dynamicLightColorScheme(context)
             }
 
-            // Set Status Bar Icon Color
             val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
             windowInsetsController.isAppearanceLightStatusBars = !isSystemInDarkTheme
 
@@ -59,8 +56,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
-// Function to check the system's dark mode setting
 @Composable
 fun isSystemInDarkTheme(): Boolean {
     val currentNightMode = LocalContext.current.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK
@@ -70,9 +65,9 @@ fun isSystemInDarkTheme(): Boolean {
 @Composable
 fun CalculatorScreen() {
     var input by remember { mutableStateOf("") }
+    var calculation by remember { mutableStateOf("") }
     val buttonSpacing = 8.dp
 
-    // Apply padding from Scaffold
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -80,26 +75,54 @@ fun CalculatorScreen() {
         verticalArrangement = Arrangement.SpaceAround,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = input,
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
-                .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp)),
-            textAlign = TextAlign.End,
-            fontSize = 36.sp,
-            fontWeight = FontWeight.Bold
-        )
+                .height(150.dp)
+                .padding(16.dp),
+            contentAlignment = Alignment.BottomEnd
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.End
+            ) {
+                if (calculation.isNotEmpty()) {
+                    Text(
+                        text = calculation,
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        textAlign = TextAlign.End,
+                        fontSize = 24.sp,
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+                    )
+                }
+
+                Text(
+                    text = input,
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    textAlign = TextAlign.End,
+                    fontSize = 64.sp,
+                    fontWeight = FontWeight.Light,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
+        }
 
         Column(
+            modifier = Modifier
+                .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // First row
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                CalculatorButton("AC", Modifier.weight(1f), onClick = { input = "" })
+                CalculatorButton("AC", Modifier.weight(1f), onClick = {
+                    input = ""
+                    calculation = ""
+                })
                 Spacer(modifier = Modifier.width(buttonSpacing))
                 CalculatorButton("()", Modifier.weight(1f), onClick = { /* TODO */ })
                 Spacer(modifier = Modifier.width(buttonSpacing))
@@ -109,7 +132,6 @@ fun CalculatorScreen() {
             }
             Spacer(modifier = Modifier.height(buttonSpacing))
 
-            // Second row
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -124,7 +146,6 @@ fun CalculatorScreen() {
             }
             Spacer(modifier = Modifier.height(buttonSpacing))
 
-            // Third row
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -139,7 +160,6 @@ fun CalculatorScreen() {
             }
             Spacer(modifier = Modifier.height(buttonSpacing))
 
-            // Fourth row
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -154,7 +174,6 @@ fun CalculatorScreen() {
             }
             Spacer(modifier = Modifier.height(buttonSpacing))
 
-            // Fifth row - 0 button is now the same size
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -171,27 +190,28 @@ fun CalculatorScreen() {
                 Spacer(modifier = Modifier.width(buttonSpacing))
                 CalculatorButton("=", Modifier.weight(1f), onClick = {
                     try {
+                        calculation = input
                         val result = ExpressionBuilder(input)
                             .build()
                             .evaluate()
-                        input = result.toString()
+
+                        input = DecimalFormat("#.##").format(result)
+
                     } catch (e: Exception) {
                         input = "Error"
                     }
                 },
                     buttonColor = MaterialTheme.colorScheme.primary)
             }
-        } // <-- Corrected position of closing curly brace
+        }
     }
 }
 
-// Now defined outside CalculatorScreen
 @Composable
 fun CalculatorButton(
     text: String,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
-    // Adjusted button color: tertiaryContainer
     buttonColor: Color = MaterialTheme.colorScheme.tertiaryContainer
 ) {
     Button(
@@ -206,7 +226,6 @@ fun CalculatorButton(
             text = text,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            // Set text color for better contrast
             color = MaterialTheme.colorScheme.onTertiaryContainer
         )
     }
