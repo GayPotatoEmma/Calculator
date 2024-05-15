@@ -66,6 +66,7 @@ fun isSystemInDarkTheme(): Boolean {
 fun CalculatorScreen() {
     var input by remember { mutableStateOf("") }
     var calculation by remember { mutableStateOf("") }
+    var openBrackets by remember { mutableStateOf(0) }
     val buttonSpacing = 8.dp
 
     Column(
@@ -124,7 +125,20 @@ fun CalculatorScreen() {
                     calculation = ""
                 })
                 Spacer(modifier = Modifier.width(buttonSpacing))
-                CalculatorButton("()", Modifier.weight(1f), onClick = { /* TODO */ })
+                CalculatorButton("()", Modifier.weight(1f), onClick = {
+                    if (openBrackets == 0) {
+                        input += "("
+                        openBrackets++
+                    } else {
+                        if (input.lastOrNull().isDigit() || input.lastOrNull() == ')') {
+                            input += ")"
+                            openBrackets--
+                        } else {
+                            input += "("
+                            openBrackets++
+                        }
+                    }
+                })
                 Spacer(modifier = Modifier.width(buttonSpacing))
                 CalculatorButton("^", Modifier.weight(1f), onClick = { input += "^" })
                 Spacer(modifier = Modifier.width(buttonSpacing))
@@ -229,4 +243,8 @@ fun CalculatorButton(
             color = MaterialTheme.colorScheme.onTertiaryContainer
         )
     }
+}
+
+private fun Char?.isDigit(): Boolean {
+    return this != null && this in '0'..'9'
 }
