@@ -5,6 +5,7 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -19,8 +20,8 @@ import androidx.compose.ui.unit.sp
 import net.objecthunter.exp4j.ExpressionBuilder
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import java.text.DecimalFormat
+import androidx.compose.foundation.rememberScrollState
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,6 +69,7 @@ fun CalculatorScreen() {
     var calculation by remember { mutableStateOf("") }
     var openBrackets by remember { mutableStateOf(0) }
     val buttonSpacing = 8.dp
+    val scrollState = rememberScrollState()
 
     Column(
         modifier = Modifier
@@ -99,15 +101,19 @@ fun CalculatorScreen() {
                     )
                 }
 
-                Text(
-                    text = input,
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    textAlign = TextAlign.End,
-                    fontSize = 64.sp,
-                    fontWeight = FontWeight.Light,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
+                Row(modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(scrollState),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Text(
+                        text = input,
+                        textAlign = TextAlign.End,
+                        fontSize = 64.sp,
+                        fontWeight = FontWeight.Light,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
             }
         }
 
@@ -217,6 +223,9 @@ fun CalculatorScreen() {
                 },
                     buttonColor = MaterialTheme.colorScheme.primary)
             }
+        }
+        LaunchedEffect(input) {
+            scrollState.animateScrollTo(scrollState.maxValue)
         }
     }
 }
